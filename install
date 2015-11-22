@@ -1,3 +1,4 @@
+
 curl https://get.docker.com | sh
 yum install git -y
 
@@ -18,7 +19,8 @@ docker run -p 80:80 -v /root/dick/public:/app -d --restart=always bitnami/nginx
 cat >/usr/local/bin/pull-hugo <<-EOF
 #!/bin/sh
 cd /root/dick
-rm -rf /root/dick/public 
+git pull
+rm -rf /root/dick/public/*
 /usr/local/bin/hugo
 EOF
 
@@ -28,4 +30,3 @@ crontab -l > mycron
 echo "*/5 * * * * /usr/local/bin/pull-hugo" >> mycron
 crontab mycron
 rm -f mycron
-
