@@ -1,0 +1,31 @@
+curl https://get.docker.com | sh
+yum install git -y
+
+wget https://github.com/spf13/hugo/releases/download/v0.14/hugo_0.14_linux_386.tar.gz
+tar -zxvf hugo_0.14_linux_386.tar.gz
+mv hugo_0.14_linux_386/hugo_0.14_linux_386 /usr/local/bin/hugo
+
+
+git clone https://github.com/dick-the-deployer/dickthedeployer.com.git dick
+cd dick
+git clone https://github.com/dplesca/purehugo.git themes/purehugo
+
+hugo 
+service docker start
+docker run -p 80:80 -v /root/dick/public:/app -d --restart=always bitnami/nginx
+
+
+cat >/usr/local/bin/pull-hugo <<-EOF
+#!/bin/sh
+cd /root/dick
+rm -rf /root/dick/public 
+/usr/local/bin/hugo
+EOF
+
+chmod +x /usr/local/bin/pull-hugo
+
+crontab -l > mycron
+echo "*/5 * * * * /usr/local/bin/pull-hugo" >> mycron
+crontab mycron
+rm -f mycron
+
