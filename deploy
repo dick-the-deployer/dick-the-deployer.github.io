@@ -1,0 +1,149 @@
+#!/bin/bash
+
+if [ "$1" != "" ] && [ "$1" = "-h" ]; then
+    echo "Dick The Deployer Get uses the following environment variables:"
+    echo "  ACTION: this is the action to use (deploy, upgrade-web, worker, remove-web)"
+    exit 1
+fi
+
+if [ -z "`which docker`" ]; then
+    echo "You must have the Docker CLI installed on your \$PATH"
+    echo "  See http://docs.docker.com for details"
+    exit 1
+fi
+
+ACTION=${ACTION:-deploy}
+IMAGE=${IMAGE:-dickthedeployer/dick:latest}
+PREFIX=${PREFIX:-dickthedeployer}
+DB_VOLUME_PATH="/etc/dickthedeployer/postgres"
+DB_PASSWORD=${DB_PASSWORD:-postgres}
+DICK_WEB_PROTOCOL=http
+DICK_WEB_PORT=${PORT:-8080}
+DICK_WEB_IP=${IP}
+
+
+get_ip() {
+    if [ -z "$DICK_WEB_IP" ]; then
+        DICK_WEB_IP=`docker run --rm --net=host alpine ip route get 8.8.8.8 | awk '{ print $7;  }'`
+    fi
+}
+
+start_db_volume() {
+    ID=$(docker run \
+        -ti \
+        -d \
+        -v $DB_VOLUME_PATH:/var/lib/postgresql/data \
+        --name $PREFIX-db-volume \
+        postgres:latest /bin/true)
+}
+
+remove_db_volume() {
+    docker rm -fv $PREFIX-db-volume > /dev/null 2>&1
+}
+
+start_postgres() {
+    ID=$(docker run \
+        -ti \
+        -d \
+        --restart=always \
+        --name $PREFIX-postgres \
+        --volumes-from=$PREFIX-db-volume \
+        -e POSTGRES_PASSWORD=$DB_PASSWORD \
+        postgres)
+}
+
+remove_postgres() {
+    docker rm -fv $PREFIX-postgres > /dev/null 2>&1
+}
+
+start_web() {
+    ID=$(docker run \
+        -ti \
+        -d \
+        --link $PREFIX-postgres \
+        --restart=always \
+        --name $PREFIX-web \
+        -p $DICK_WEB_PORT:8080 \
+        -e spring.datasource.url=jdbc:postgresql://$PREFIX-postgres:5432/postgres \
+        -e spring.datasource.password=$DB_PASSWORD \
+         dickthedeployer/dick:latest)
+}
+
+remove_web() {
+    docker rm -fv $PREFIX-web > /dev/null 2>&1
+}
+
+wait_for_available() {
+    set +e
+    IP=$1
+    PORT=$2
+    echo Waiting for Dick The Deployer on $IP:$PORT
+
+    docker pull appropriate/curl > /dev/null 2>&1
+
+    until $(docker run --rm appropriate/curl --output /dev/null --connect-timeout 1 --silent --head --fail $TLS_OPTS $DICK_WEB_PROTOCOL://$IP:$PORT/ > /dev/null 2>&1); do
+        printf '.'
+        sleep 1
+    done
+    printf '\n'
+}
+
+remove_controller() {
+    docker rm -fv $PREFIX-controller > /dev/null 2>&1
+}
+
+if [ "$ACTION" = "deploy" ]; then
+    set -e
+
+    get_ip
+
+    echo "Deploying Dick The Deployer"
+    echo " -> Starting Database Volume"
+    start_db_volume
+    echo " -> Starting Database"
+    start_postgres
+    echo " -> Starting Web"
+    start_web
+
+    wait_for_available $DICK_WEB_IP $DICK_WEB_PORT
+
+    echo "Dick The Deployer available at $DICK_WEB_PROTOCOL://$DICK_WEB_IP:$DICK_WEB_PORT"
+
+elif [ "$ACTION" = "worker" ]; then
+
+    echo "Not implemented yet"
+
+elif [ "$ACTION" = "upgrade-web" ]; then
+    set -e
+
+    get_ip
+
+    echo "Upgrading Dick The Deployer"
+    echo " -> Pulling $IMAGE"
+    docker pull $IMAGE
+
+    echo " -> Upgrading Controller"
+    remove_web
+    start_web
+
+    wait_for_available $DICK_WEB_IP $DICK_WEB_PORT
+
+    echo "Dick The Deployer web updated"
+
+elif [ "$ACTION" = "remove-web" ]; then
+    # ignore errors
+    set +e
+
+    echo "Removing Dick The Deployer"
+    echo " -> Removing Web"
+    remove_web
+    echo " -> Removing Database"
+    remove_postgres
+    echo " -> Removing Database Volume"
+    remove_db_volume
+
+    echo "Done. If you want to remove database files also please run \"rm rf $DB_VOLUME_PATH\""
+else
+    echo "Unknown action $ACTION"
+    exit 1
+fi
