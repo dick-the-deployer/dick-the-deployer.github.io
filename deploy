@@ -1,8 +1,12 @@
 #!/bin/bash
 
 if [ "$1" != "" ] && [ "$1" = "-h" ]; then
-    echo "Dick The Deployer Get uses the following environment variables:"
-    echo "  ACTION: this is the action to use (deploy, upgrade-web, worker, remove-web)"
+    echo "Dick The Deployer Deploy Script uses the following environment variables:"
+    echo "  ACTION: this is the action to use (deploy-web, upgrade-web, remove-web, deploy-workers, upgrade-workers, remove-workers)"
+    echo "  WORKER_MEMORY: this is the memory limit assigned to each worker, default 256M"
+    echo "  WORKERS: this is the number of workers to create in deploy-workers action"
+    echo "  PREFIX: this is the prefix used by all Dick The Deployer components"
+    echo "  DICK_WEB_ADDRESS: this is the Dick The Deployer Web addres used by workers to register in"
     exit 1
 fi
 
@@ -12,14 +16,18 @@ if [ -z "`which docker`" ]; then
     exit 1
 fi
 
-ACTION=${ACTION:-deploy}
-IMAGE=${IMAGE:-dickthedeployer/dick:latest}
+ACTION=${ACTION:-deploy-web}
+WEB_IMAGE=${WEB_IMAGE:-dickthedeployer/dick:latest}
+WORKER_IMAGE=${WORKER_IMAGE:-dickthedeployer/dick-worker:latest}
+WORKER_MEMORY=${WORKER_MEMORY:-256M}
+WORKERS=${WORKERS:-2}
 PREFIX=${PREFIX:-dickthedeployer}
 DB_VOLUME_PATH="/etc/dickthedeployer/postgres"
-DB_PASSWORD=${DB_PASSWORD:-postgres}
+POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
 DICK_WEB_PROTOCOL=http
 DICK_WEB_PORT=${PORT:-8080}
 DICK_WEB_IP=${IP}
+DICK_WEB_ADDRESS=${DICK_WEB_ADDRESS}
 
 
 get_ip() {
@@ -48,8 +56,8 @@ start_postgres() {
         --restart=always \
         --name $PREFIX-postgres \
         --volumes-from=$PREFIX-db-volume \
-        -e POSTGRES_PASSWORD=$DB_PASSWORD \
-        postgres)
+        -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+        postgres:latest)
 }
 
 remove_postgres() {
@@ -65,12 +73,41 @@ start_web() {
         --name $PREFIX-web \
         -p $DICK_WEB_PORT:8080 \
         -e spring.datasource.url=jdbc:postgresql://$PREFIX-postgres:5432/postgres \
-        -e spring.datasource.password=$DB_PASSWORD \
+        -e spring.datasource.password=$POSTGRES_PASSWORD \
          dickthedeployer/dick:latest)
 }
 
 remove_web() {
     docker rm -fv $PREFIX-web > /dev/null 2>&1
+}
+
+count_workers() {
+    RUNNING_WORKERS=`docker ps -a | awk '{ print $1,$2 }' | grep $WORKER_IMAGE | wc -l`
+}
+
+start_workers() {
+    SHOULD_RUN=`expr $RUNNING_WORKERS + $WORKERS - 1`
+    for i in `seq $RUNNING_WORKERS $SHOULD_RUN`;
+    do
+        echo "Starting worker number: $i"
+        ID=$(docker run \
+            -ti \
+            -d \
+            -m $WORKER_MEMORY \
+            --restart=always \
+            --name $PREFIX-worker-$i \
+            -e dick.web.url=$DICK_WEB_ADDRESS \
+            dickthedeployer/dick-worker:latest)
+    done
+}
+
+remove_workers() {
+    # ignore errors
+    set +e
+    for i in `seq 0 $RUNNING_WORKERS`;
+    do
+        docker rm -fv $PREFIX-worker-$i > /dev/null 2>&1
+    done
 }
 
 wait_for_available() {
@@ -81,18 +118,14 @@ wait_for_available() {
 
     docker pull appropriate/curl > /dev/null 2>&1
 
-    until $(docker run --rm appropriate/curl --output /dev/null --connect-timeout 1 --silent --head --fail $TLS_OPTS $DICK_WEB_PROTOCOL://$IP:$PORT/ > /dev/null 2>&1); do
+    until $(docker run --rm appropriate/curl --output /dev/null --connect-timeout 1 --silent --head --fail $DICK_WEB_PROTOCOL://$IP:$PORT/ > /dev/null 2>&1); do
         printf '.'
         sleep 1
     done
     printf '\n'
 }
 
-remove_controller() {
-    docker rm -fv $PREFIX-controller > /dev/null 2>&1
-}
-
-if [ "$ACTION" = "deploy" ]; then
+if [ "$ACTION" = "deploy-web" ]; then
     set -e
 
     get_ip
@@ -108,10 +141,8 @@ if [ "$ACTION" = "deploy" ]; then
     wait_for_available $DICK_WEB_IP $DICK_WEB_PORT
 
     echo "Dick The Deployer available at $DICK_WEB_PROTOCOL://$DICK_WEB_IP:$DICK_WEB_PORT"
-
-elif [ "$ACTION" = "worker" ]; then
-
-    echo "Not implemented yet"
+    echo "You can now install workers running: "
+    echo " -> curl https://raw.githubusercontent.com/dick-the-deployer/dickthedeployer.com/master/deploy | ACTION=deploy-worker DICK_WEB_ADDRESS=$DICK_WEB_PROTOCOL://$DICK_WEB_IP:$DICK_WEB_PORT bash -s"
 
 elif [ "$ACTION" = "upgrade-web" ]; then
     set -e
@@ -119,8 +150,8 @@ elif [ "$ACTION" = "upgrade-web" ]; then
     get_ip
 
     echo "Upgrading Dick The Deployer"
-    echo " -> Pulling $IMAGE"
-    docker pull $IMAGE
+    echo " -> Pulling $WEB_IMAGE"
+    docker pull $WEB_IMAGE
 
     echo " -> Upgrading Controller"
     remove_web
@@ -142,7 +173,55 @@ elif [ "$ACTION" = "remove-web" ]; then
     echo " -> Removing Database Volume"
     remove_db_volume
 
-    echo "Done. If you want to remove database files also please run \"rm rf $DB_VOLUME_PATH\""
+    echo "Done. If you want to remove database files also please run:"
+    echo " -> rm rf $DB_VOLUME_PATH"
+
+
+elif [ "$ACTION" = "deploy-workers" ]; then
+    set -e
+    if [ -z "$DICK_WEB_ADDRESS" ]; then
+        echo "DICK_WEB_ADDRESS variable must be set in deploy-worker action"
+        return 1
+    fi
+
+    count_workers
+
+    echo "Deploying Dick The Deployer Workers"
+    echo " -> Starting Workers"
+    start_workers
+
+    echo "Dick The Deployer Workers started"
+
+elif [ "$ACTION" = "upgrade-workers" ]; then
+    set -e
+
+    echo "Upgrading Dick The Deployer Worker"
+    echo " -> Pulling $WORKER_IMAGE"
+    docker pull $WORKER_IMAGE
+
+    echo " -> Upgrading Workers"
+
+    count_workers
+    remove_workers
+
+    WORKERS=$RUNNING_WORKERS
+    RUNNING_WORKERS=0
+    start_workers
+
+    echo "Dick The Deployer Workers updated"
+
+elif [ "$ACTION" = "remove-workers" ]; then
+    # ignore errors
+    set +e
+
+    count_workers
+
+    echo "Removing Dick The Deployer Workers"
+    echo " -> Removing Workers"
+    remove_workers
+
+    echo "Done."
+
 else
     echo "Unknown action $ACTION"
     exit 1
