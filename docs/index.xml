@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docs on Dick the Deployer</title>
+    <link>http://dickthedeployer.com/docs/</link>
+    <description>Recent content in Docs on Dick the Deployer</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 22 Nov 2015 20:11:22 +0100</lastBuildDate>
+    <atom:link href="http://dickthedeployer.com/docs/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Deployment</title>
+      <link>http://dickthedeployer.com/docs/deploy/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>http://dickthedeployer.com/docs/deploy/</guid>
+      <description>
+
+&lt;p&gt;There is an automated deployment for quick installation. You can set various options that should take care of most configurations.
+However, if you want a full customized install, you can treat the automated deployment script as an example.&lt;/p&gt;
+
+&lt;p&gt;Automated deployment will deploy Dick the Deployer using current Docker host.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Note: you must have a Docker available.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Once deployed, the script will output the URL to connect and command required to run some workers.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;curl https://raw.githubusercontent.com/dick-the-deployer/dickthedeployer.com/master/static/deploy | bash -s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For full usage details:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;curl -s https://raw.githubusercontent.com/dick-the-deployer/dickthedeployer.com/master/static/deploy | bash -s -- -h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;  ACTION: this is the action to use (deploy-web, upgrade-web, remove-web, deploy-workers, upgrade-workers, remove-workers)
+  VERSION: version of docker images to use, default latest
+  PORT: port to run web, default 8080
+  WORKER_MEMORY: this is the memory limit assigned to each worker, default 256M
+  WORKERS: this is the number of workers to create in deploy-workers action
+  PREFIX: this is the prefix used by all Dick The Deployer components
+  DICK_WEB_ADDRESS: this is the Dick The Deployer Web addres used by workers to register in
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Note: all variables are optional.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;There are also several advanced options not included in full usage, please refer to the script content for details.&lt;/p&gt;
+
+&lt;h2 id=&#34;options:0814af543608f4fd171b2e9cf43d9917&#34;&gt;Options&lt;/h2&gt;
+
+&lt;p&gt;To customize the deployment, you can specify the following environment variables.&lt;/p&gt;
+
+&lt;h3 id=&#34;action:0814af543608f4fd171b2e9cf43d9917&#34;&gt;Action&lt;/h3&gt;
+
+&lt;p&gt;This controls the action for the script. Available options are:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;deploy-web&lt;/code&gt;: Deploy new Dick the Deployer instance&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;upgrade-web&lt;/code&gt;: Upgrade Dick the Deployer instance.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;remove-web&lt;/code&gt;: Remove Dick the Deployer instance. (Some additional steps may be require, as printed by script)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;deploy-workers&lt;/code&gt;: Deploy two Workers and links them to Web. &lt;code&gt;DICK_WEB_ADDRESS&lt;/code&gt; is required.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;upgrade-workers&lt;/code&gt;: Upgrade each available Worker instance.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;remove-workers&lt;/code&gt;: Remove each Worker instance.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;version:0814af543608f4fd171b2e9cf43d9917&#34;&gt;Version&lt;/h3&gt;
+
+&lt;p&gt;Version of Dick the Deployer container&amp;rsquo;s pulled from registry.&lt;/p&gt;
+
+&lt;h3 id=&#34;port:0814af543608f4fd171b2e9cf43d9917&#34;&gt;PORT&lt;/h3&gt;
+
+&lt;p&gt;Port used by Dick the Deployer - Web module.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Dickfile</title>
+      <link>http://dickthedeployer.com/docs/dickfile/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>http://dickthedeployer.com/docs/dickfile/</guid>
+      <description>
+
+&lt;p&gt;The instructions how to build project should be stored in project repository in a &lt;code&gt;.dick.yml&lt;/code&gt; file. This design choice
+allows configuration versioning and in the same time - quick setup.&lt;/p&gt;
+
+&lt;p&gt;The dickfile has two main sections, the &lt;code&gt;pipeline&lt;/code&gt; and &lt;code&gt;jobs&lt;/code&gt;.
+Pipeline section should contains list of stages, and if certain stage should run automatically.
+Jobs section should contain list of jobs, containing list of commands required to complete each job.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;pipeline:
+  stages:
+  - name: first # name of stage
+    autorun: true # if the stage should run automatically
+  - name: second
+    autorun: true
+
+jobs: 
+  - stage: first # name of stage this job belongs 
+    name: echo foo # name of this job
+    deploy: # list of commands in this job
+      - echo foo
+    environmentVariables: # list of environment variables injected to each command in this job
+      - key: FOO
+        value: bar
+  - stage: second
+    name: echo bar
+    deploy:
+      - exit 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;examples:33b2769fd87b4cd66cfe98ea5899ab06&#34;&gt;Examples&lt;/h2&gt;
+
+&lt;p&gt;Example &lt;code&gt;.dick.yml&lt;/code&gt; files are available on &lt;a href=&#34;https://github.com/dick-the-deployer/examples&#34;&gt;examples&lt;/a&gt; repository.
+Please check different branches for different configuration options.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

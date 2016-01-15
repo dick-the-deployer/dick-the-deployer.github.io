@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dickfile &middot; Dick the Deployer</title>
+
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <meta name="generator" content="Hugo 0.14" />
+    <meta name="twitter:card" content="summary">
+    
+    <meta name="twitter:title" content="Dickfile &middot; Dick the Deployer">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Dickfile &middot; Dick the Deployer">
+    <meta property="og:description" content="">
+
+    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Oxygen:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">
+    <!--<![endif]-->
+
+    <link rel="stylesheet" href="http://dickthedeployer.com/css/all.min.css">
+    <link rel="stylesheet" href="http://dickthedeployer.com/css/custom.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="alternate" type="application/rss+xml" title="Dick the Deployer" href="http://dickthedeployer.com/index.xml" />
+</head>
+<body>
+
+
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+
+    <img src="http://dickthedeployer.com/images/logo.png" class="logo"/>
+    <div class="separator"></div>
+    <div class="header">
+        <hgroup>
+            <h1 class="brand-title"><a href="http://dickthedeployer.com">Dick the Deployer</a></h1>
+            <h2 class="brand-tagline"> Dockerized Continuous Delivery </h2>
+        </hgroup>
+
+
+        <ul class="nav-list side-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/docs/deploy/">Deploy</a></li>
+            <li><a href="/walkthrough">Walkthrough</a></li>
+            <li><a href="/docs/dickfile/">Dickfile</a></li>
+            <li><a href="https://github.com/dick-the-deployer/dick">GitHub</a></li>
+        </ul>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="https://github.com/dick-the-deployer/dick "><i class="fa fa-github-alt"></i> github</a>
+                </li>
+                
+            </ul>
+        </nav>
+
+
+        <p>&copy; 2016. All rights reserved.
+            </p>
+    </div>
+</div>
+
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+        <div>
+            
+            <div class="posts">
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="http://dickthedeployer.com/docs/dickfile/" class="post-title">Dickfile</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        
+
+<p>The instructions how to build project should be stored in project repository in a <code>.dick.yml</code> file. This design choice
+allows configuration versioning and in the same time - quick setup.</p>
+
+<p>The dickfile has two main sections, the <code>pipeline</code> and <code>jobs</code>.
+Pipeline section should contains list of stages, and if certain stage should run automatically.
+Jobs section should contain list of jobs, containing list of commands required to complete each job.</p>
+
+<pre><code class="language-yml">pipeline:
+  stages:
+  - name: first # name of stage
+    autorun: true # if the stage should run automatically
+  - name: second
+    autorun: true
+
+jobs: 
+  - stage: first # name of stage this job belongs 
+    name: echo foo # name of this job
+    deploy: # list of commands in this job
+      - echo foo
+    environmentVariables: # list of environment variables injected to each command in this job
+      - key: FOO
+        value: bar
+  - stage: second
+    name: echo bar
+    deploy:
+      - exit 1
+</code></pre>
+
+<h2 id="examples:33b2769fd87b4cd66cfe98ea5899ab06">Examples</h2>
+
+<p>Example <code>.dick.yml</code> files are available on <a href="https://github.com/dick-the-deployer/examples">examples</a> repository.
+Please check different branches for different configuration options.</p>
+
+                    </div>
+                    
+                </section>
+            </div>
+            <div class="footer">
+    <div class="pure-menu pure-menu-horizontal pure-menu-open">
+        <ul>
+            <li>Powered by <a class="hugo" href="http://gohugo.io/" target="_blank">hugo</a></li>
+        </ul>
+    </div>
+</div>
+<script src="http://dickthedeployer.com/js/all.min.js"></script>
+        </div>
+    </div>
+</div>
+
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

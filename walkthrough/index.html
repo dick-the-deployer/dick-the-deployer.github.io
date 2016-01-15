@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dick the Deployer Walkthrough &middot; Dick the Deployer</title>
+
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <meta name="generator" content="Hugo 0.14" />
+    <meta name="twitter:card" content="summary">
+    
+    <meta name="twitter:title" content="Dick the Deployer Walkthrough &middot; Dick the Deployer">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Dick the Deployer Walkthrough &middot; Dick the Deployer">
+    <meta property="og:description" content="">
+
+    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Oxygen:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">
+    <!--<![endif]-->
+
+    <link rel="stylesheet" href="http://dickthedeployer.com/css/all.min.css">
+    <link rel="stylesheet" href="http://dickthedeployer.com/css/custom.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="alternate" type="application/rss+xml" title="Dick the Deployer" href="http://dickthedeployer.com/index.xml" />
+</head>
+<body>
+
+
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+
+    <img src="http://dickthedeployer.com/images/logo.png" class="logo"/>
+    <div class="separator"></div>
+    <div class="header">
+        <hgroup>
+            <h1 class="brand-title"><a href="http://dickthedeployer.com">Dick the Deployer</a></h1>
+            <h2 class="brand-tagline"> Dockerized Continuous Delivery </h2>
+        </hgroup>
+
+
+        <ul class="nav-list side-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/docs/deploy/">Deploy</a></li>
+            <li><a href="/walkthrough">Walkthrough</a></li>
+            <li><a href="/docs/dickfile/">Dickfile</a></li>
+            <li><a href="https://github.com/dick-the-deployer/dick">GitHub</a></li>
+        </ul>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="https://github.com/dick-the-deployer/dick "><i class="fa fa-github-alt"></i> github</a>
+                </li>
+                
+            </ul>
+        </nav>
+
+
+        <p>&copy; 2016. All rights reserved.
+            </p>
+    </div>
+</div>
+
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+        <div>
+            
+            <div class="posts">
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="http://dickthedeployer.com/walkthrough/" class="post-title">Dick the Deployer Walkthrough</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        
+
+<p>This is an overview of Dick the Deployer.</p>
+
+<h2 id="abstract:768a1ac86c71098dd573ea94cdc5f39a">Abstract</h2>
+
+<p>Dick the Deployer organizes work in projects. Each project is based on certain repository and ref (for example <code>master</code>).
+The repository should contain <code>.dick.yml</code> file with the pipeline definition. You can read more about this file in
+<a href="/docs/dickfile">dickfile</a> section.</p>
+
+<h2 id="projects:768a1ac86c71098dd573ea94cdc5f39a">Projects</h2>
+
+<p>The projects section provides a single view of all projects in the Dick the Deployer.
+You can see what is current status of each pipeline, when the build was started,
+the last commit message and more. There is also several buttons allowing starting
+pipeline manually, starting selected stage or restarting stage build.</p>
+
+<p><img src="/images/dashboard.png" alt="Projects" />
+</p>
+
+<h2 id="builds:768a1ac86c71098dd573ea94cdc5f39a">Builds</h2>
+
+<p>The builds section provides history of pipelines for selected project. You can start (or restart)
+any stage build of any pipeline run. There is also several information like commit message, build number
+and when the build was started.</p>
+
+<p><img src="/images/builds.png" alt="Projects" />
+</p>
+
+<h2 id="build:768a1ac86c71098dd573ea94cdc5f39a">Build</h2>
+
+<p>The build section provides summary for certain build. You can monitor build progress of every job in selected stage,
+including build output in near real time.</p>
+
+<p><img src="/images/output.png" alt="Projects" />
+</p>
+
+<h2 id="settings:768a1ac86c71098dd573ea94cdc5f39a">Settings</h2>
+
+<p>The setting section provides several options for project management. You can edit ref, repository and environment variables.
+Using this section you can also rename, move or delete project.</p>
+
+<p><img src="/images/settings.png" alt="Projects" />
+</p>
+
+<h2 id="groups:768a1ac86c71098dd573ea94cdc5f39a">Groups</h2>
+
+<p>The groups section presents groups available in Dick the Deployer.</p>
+
+<p><img src="/images/groups.png" alt="Projects" />
+</p>
+
+                    </div>
+                    
+                </section>
+            </div>
+            <div class="footer">
+    <div class="pure-menu pure-menu-horizontal pure-menu-open">
+        <ul>
+            <li>Powered by <a class="hugo" href="http://gohugo.io/" target="_blank">hugo</a></li>
+        </ul>
+    </div>
+</div>
+<script src="http://dickthedeployer.com/js/all.min.js"></script>
+        </div>
+    </div>
+</div>
+
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>
