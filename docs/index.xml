@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docs on Dick the Deployer</title>
+    <link>https://dick-the-deployer.github.io/docs/</link>
+    <description>Recent content in Docs on Dick the Deployer</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 22 Nov 2015 20:11:22 +0100</lastBuildDate>
+    <atom:link href="https://dick-the-deployer.github.io/docs/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Deployer File</title>
+      <link>https://dick-the-deployer.github.io/docs/deployerfile/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>https://dick-the-deployer.github.io/docs/deployerfile/</guid>
+      <description>
+
+&lt;p&gt;The instructions how to build project should be stored in project repository in a &lt;code&gt;.deployer.yml&lt;/code&gt; file. This design choice
+allows configuration versioning and quick setup at the same time.&lt;/p&gt;
+
+&lt;p&gt;The deployer file has two main sections, the &lt;code&gt;pipeline&lt;/code&gt; and &lt;code&gt;jobs&lt;/code&gt;.
+Pipeline section should contain list of stages with information if certain stage should run automatically.
+Jobs section should contain list of jobs, containing list of commands required to complete each job.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Please note that Dick the Deployer Worker runs commands by bash inside docker container. Only containers with bash available will work.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;image: debian:latest
+
+variables: # list of environment variables injected to each command
+  - key: VERSION
+    value: 1.2.3
+    
+pipeline:
+  stages:
+  - name: first # name of stage
+    autorun: true # if the stage should run automatically, default false
+  - name: second
+    autorun: true
+
+jobs: 
+  - stage: first # name of stage this job belongs to
+    name: echo foo # name of this job
+    requireRepository: true # if the job require sources from repository, default false
+    deploy: # list of commands in this job
+      - echo foo
+  - stage: second
+    name: echo bar
+    deploy:
+      - exit 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;examples:0f753ca423aeb68aff8e2b75d30363b4&#34;&gt;Examples&lt;/h2&gt;
+
+&lt;p&gt;Example &lt;code&gt;.deployer.yml&lt;/code&gt; files are available in &lt;a href=&#34;https://github.com/dick-the-deployer/examples&#34;&gt;examples&lt;/a&gt; repository.
+Please check different branches for different configuration options.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Deployment</title>
+      <link>https://dick-the-deployer.github.io/docs/deploy/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>https://dick-the-deployer.github.io/docs/deploy/</guid>
+      <description>
+
+&lt;p&gt;There is an automated deployment for quick installation. You can set various options that should take care of most configurations.
+However, if you want a full customized install, you can treat the automated deployment script as an example.&lt;/p&gt;
+
+&lt;p&gt;Automated deployment will deploy Dick the Deployer using current Docker host.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Note: you must have a Docker available.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Once deployed, the script will output the URL to connect and command required to run some workers.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;curl https://dick-the-deployer.github.io/deploy | bash -s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Note: if you get an error &amp;ldquo;Cannot communicate securely with peer: no common encryption algorithm(s).&amp;rdquo; you need to specify algorithm manually &lt;code&gt;curl --ciphers ecdhe_ecdsa_aes_256_sha https://dick-the-deployer.github.io/deploy | bash -s&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;For full usage details:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;curl -s https://dick-the-deployer.github.io/deploy | bash -s -- -h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;  ACTION: this is the action to use (deploy-web, upgrade-web, remove-web, deploy-workers, upgrade-workers, remove-workers)
+  VERSION: version of docker images to use, default latest
+  PORT: port to run web, default 8080
+  WORKERS: this is the number of workers to create in deploy-workers action
+  PREFIX: this is the prefix used by all Dick The Deployer components
+  DICK_WEB_ADDRESS: this is the Dick The Deployer Web address used by workers to register in
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Note: all variables are optional.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;There are also several advanced options not included in full usage, please refer to the script content for details.&lt;/p&gt;
+
+&lt;h2 id=&#34;options:0814af543608f4fd171b2e9cf43d9917&#34;&gt;Options&lt;/h2&gt;
+
+&lt;p&gt;To customize the deployment, you can specify the following environment variables.&lt;/p&gt;
+
+&lt;h3 id=&#34;action:0814af543608f4fd171b2e9cf43d9917&#34;&gt;Action&lt;/h3&gt;
+
+&lt;p&gt;This controls the action for the script. Available options are:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;deploy-web&lt;/code&gt;: Deploy new Dick the Deployer instance&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;upgrade-web&lt;/code&gt;: Upgrade Dick the Deployer instance.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;remove-web&lt;/code&gt;: Remove Dick the Deployer instance. (Some additional steps may be required, as printed by script)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;deploy-workers&lt;/code&gt;: Deploy two Workers and link them to Web. &lt;code&gt;DICK_WEB_ADDRESS&lt;/code&gt; is required.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;upgrade-workers&lt;/code&gt;: Upgrade each available Worker instance.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;remove-workers&lt;/code&gt;: Remove each Worker instance.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;version:0814af543608f4fd171b2e9cf43d9917&#34;&gt;Version&lt;/h3&gt;
+
+&lt;p&gt;Version of Dick the Deployer container pulled from registry.&lt;/p&gt;
+
+&lt;h3 id=&#34;port:0814af543608f4fd171b2e9cf43d9917&#34;&gt;PORT&lt;/h3&gt;
+
+&lt;p&gt;Port used by Dick the Deployer - Web module.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Generic hook</title>
+      <link>https://dick-the-deployer.github.io/docs/integrations/generic/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>https://dick-the-deployer.github.io/docs/integrations/generic/</guid>
+      <description>&lt;p&gt;To notify Dick the Deployer about the changes in repository you can use generic hook.
+To do so please send &lt;code&gt;POST&lt;/code&gt; request to &lt;code&gt;api/hooks&lt;/code&gt; endpoint, with &lt;code&gt;json&lt;/code&gt; body:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;{
+    host: &#39;my-gitlab.example.com&#39;
+    path: &#39;open-source/wizzard&#39;
+    ref: &#39;master&#39;
+    sha: &#39;44a5d78fd58cb9d5de4&#39;
+    lastMessage: &#39;Wand support implemented&#39;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can automate this using post-commit hook feature. Docs are avaliable &lt;a href=&#34;https://git-scm.com/book/uz/v2/Customizing-Git-Git-Hooks&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Gitlab integration</title>
+      <link>https://dick-the-deployer.github.io/docs/integrations/gitlab/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>https://dick-the-deployer.github.io/docs/integrations/gitlab/</guid>
+      <description>&lt;p&gt;To enable Gitlab integration open your project settings in Gitlab, and then go to &lt;code&gt;Web Hooks&lt;/code&gt; page.&lt;/p&gt;
+
+&lt;p&gt;As URL use your Dick the Deployer instance address with &lt;code&gt;/api/hooks/gitlab&lt;/code&gt; path. Make sure that Trigger Push Events is
+checked and save the changes.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://dick-the-deployer.github.io/images/gitlab.png&#34; alt=&#34;Gitlab&#34; /&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GitlabCI integration</title>
+      <link>https://dick-the-deployer.github.io/docs/integrations/gitlab-ci/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>https://dick-the-deployer.github.io/docs/integrations/gitlab-ci/</guid>
+      <description>&lt;p&gt;To enable GitlabCI integration open your project settings in Gitlab, and then go to &lt;code&gt;CI Web Hooks&lt;/code&gt; page.&lt;/p&gt;
+
+&lt;p&gt;As URL use your Dick the Deployer instance address with &lt;code&gt;/api/hooks/gitlab-ci&lt;/code&gt; path.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://dick-the-deployer.github.io/images/gitlab-ci.png&#34; alt=&#34;Gitlab&#34; /&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Integrations</title>
+      <link>https://dick-the-deployer.github.io/docs/integrations/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>https://dick-the-deployer.github.io/docs/integrations/</guid>
+      <description>&lt;p&gt;&lt;em&gt;Dick the Deployer doesn&amp;rsquo;t pool the repositories for changes.&lt;/em&gt;
+Instead the code repository should send notification using one of available hooks.&lt;/p&gt;
+
+&lt;p&gt;Dick the Deployer provides generic endpoint as well as several basic integrations with popular software.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://dick-the-deployer.github.io/docs/integrations/generic&#34;&gt;Generic endpoint&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://dick-the-deployer.github.io/docs/integrations/gitlab&#34;&gt;Gitlab&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://dick-the-deployer.github.io/docs/integrations/gitlab-ci&#34;&gt;Gitlab CI&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Parametrization</title>
+      <link>https://dick-the-deployer.github.io/docs/environment/</link>
+      <pubDate>Sun, 22 Nov 2015 20:11:22 +0100</pubDate>
+      
+      <guid>https://dick-the-deployer.github.io/docs/environment/</guid>
+      <description>
+
+&lt;p&gt;Dick the Deployer enables parametrization of build scripts using environment variables.
+Values that should remain secret can be provided using Dick Web by selecting &lt;code&gt;secure&lt;/code&gt; option.
+Those variables will not be visible in build output.&lt;/p&gt;
+
+&lt;h2 id=&#34;providing-environment-variables:1c6c8021bf90a0f894bf2ef30de55548&#34;&gt;Providing Environment Variables&lt;/h2&gt;
+
+&lt;p&gt;There are three ways of providing environment variables:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;manually when starting pipeline with options,&lt;/li&gt;
+&lt;li&gt;by &lt;code&gt;variables&lt;/code&gt; section in &lt;code&gt;.deployer.yml&lt;/code&gt; configuration file,&lt;/li&gt;
+&lt;li&gt;and finally by project options in Dick Web.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;environment-variables-order:1c6c8021bf90a0f894bf2ef30de55548&#34;&gt;Environment Variables Order&lt;/h2&gt;
+
+&lt;p&gt;There are several ways of providing environment variables to the job. Variables can be injected
+by setting them to configuration on Dick the Deployer Web, can be provided via &lt;code&gt;yml&lt;/code&gt; file and
+by setting them when triggering the job manually with options.&lt;/p&gt;
+
+&lt;p&gt;Each conflict in variable names is resolved with priorities in descending order as follows:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;most important are variables set manually (or via build hook),&lt;/li&gt;
+&lt;li&gt;then variables defined in &lt;code&gt;yml&lt;/code&gt; file,&lt;/li&gt;
+&lt;li&gt;finally variables configured in project on Dick Web have lowest priority.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

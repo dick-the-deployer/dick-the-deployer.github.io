@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docs &middot; Dick the Deployer</title>
+
+    <meta name="description" content="Dockerized Continuous Delivery">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <meta name="generator" content="Hugo 0.14" />
+    <meta name="twitter:card" content="summary">
+    
+    <meta name="twitter:title" content="Docs &middot; Dick the Deployer">
+    <meta name="twitter:description" content="Dockerized Continuous Delivery">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Docs &middot; Dick the Deployer">
+    <meta property="og:description" content="Dockerized Continuous Delivery">
+
+    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Oxygen:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">
+    <!--<![endif]-->
+
+    <link rel="stylesheet" href="https://dick-the-deployer.github.io/css/all.min.css">
+    <link rel="stylesheet" href="https://dick-the-deployer.github.io/css/custom.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="alternate" type="application/rss+xml" title="Dick the Deployer" href="https://dick-the-deployer.github.io/index.xml" />
+</head>
+<body>
+
+
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+
+    <img src="https://dick-the-deployer.github.io/images/logo.png" class="logo"/>
+    <div class="separator"></div>
+    <div class="header">
+        <hgroup>
+            <h1 class="brand-title"><a href="https://dick-the-deployer.github.io">Dick the Deployer</a></h1>
+            <h2 class="brand-tagline"> Dockerized Continuous Delivery </h2>
+        </hgroup>
+
+
+        <ul class="nav-list side-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/docs/deploy/">Deploy</a></li>
+            <li><a href="/walkthrough">Walkthrough</a></li>
+            <li><a href="/docs/deployerfile/">Deployer File</a></li>
+            <li><a href="/docs/environment/">Parametrization</a></li>
+            <li><a href="/docs/integrations/">Integrations</a></li>
+        </ul>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="https://dickthedeployer.slack.com"><i class="fa fa-slack"></i> slack</a>
+                </li>
+                
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="https://github.com/dick-the-deployer/dick "><i class="fa fa-github-alt"></i>
+                        github</a>
+                </li>
+                
+            </ul>
+        </nav>
+
+
+        <p>&copy; 2017. All rights reserved.
+            </p>
+    </div>
+</div>
+
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+        <div>
+            
+            <div class="posts">
+                
+                <h1 class="content-subhead">22 Nov 2015, 20:11</h1>
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="https://dick-the-deployer.github.io/docs/deployerfile/" class="post-title">Deployer File</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        
+
+<p>The instructions how to build project should be stored in project repository in a <code>.deployer.yml</code> file. This design choice
+allows configuration versioning and quick setup at the same time.</p>
+
+<p>The deployer file has two main sections, the <code>pipeline</code> and <code>jobs</code>.
+Pipeline section should contain list of stages with information if certain stage should run automatically.
+Jobs section should contain list of jobs, containing list of commands required to complete each job.</p>
+
+<blockquote>
+<p>Please note that Dick the Deployer Worker runs commands by bash inside docker container. Only containers with bash available will work.</p>
+</blockquote>
+
+<pre><code class="language-yml">image: debian:latest
+
+variables: # list of environment variables injected to each command
+  - key: VERSION
+    value: 1.2.3
+    
+pipeline:
+  stages:
+  - name: first # name of stage
+    autorun: true # if the stage should run automatically, default false
+  - name: second
+    autorun: true
+
+jobs: 
+  - stage: first # name of stage this job belongs to
+    name: echo foo # name of this job
+    requireRepository: true # if the job require sources from repository, default false
+    deploy: # list of commands in this job
+      - echo foo
+  - stage: second
+    name: echo bar
+    deploy:
+      - exit 1
+</code></pre>
+
+<h2 id="examples:0f753ca423aeb68aff8e2b75d30363b4">Examples</h2>
+
+<p>Example <code>.deployer.yml</code> files are available in <a href="https://github.com/dick-the-deployer/examples">examples</a> repository.
+Please check different branches for different configuration options.</p>
+
+                    </div>
+                </section>
+                
+                <h1 class="content-subhead">22 Nov 2015, 20:11</h1>
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="https://dick-the-deployer.github.io/docs/deploy/" class="post-title">Deployment</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        
+
+<p>There is an automated deployment for quick installation. You can set various options that should take care of most configurations.
+However, if you want a full customized install, you can treat the automated deployment script as an example.</p>
+
+<p>Automated deployment will deploy Dick the Deployer using current Docker host.</p>
+
+<blockquote>
+<p>Note: you must have a Docker available.</p>
+</blockquote>
+
+<p>Once deployed, the script will output the URL to connect and command required to run some workers.</p>
+
+<pre><code class="language-bash">curl https://dick-the-deployer.github.io/deploy | bash -s
+</code></pre>
+
+<blockquote>
+<p>Note: if you get an error &ldquo;Cannot communicate securely with peer: no common encryption algorithm(s).&rdquo; you need to specify algorithm manually <code>curl --ciphers ecdhe_ecdsa_aes_256_sha https://dick-the-deployer.github.io/deploy | bash -s</code></p>
+</blockquote>
+
+<p>For full usage details:</p>
+
+<pre><code class="language-bash">curl -s https://dick-the-deployer.github.io/deploy | bash -s -- -h
+</code></pre>
+
+<pre><code class="language-bash">  ACTION: this is the action to use (deploy-web, upgrade-web, remove-web, deploy-workers, upgrade-workers, remove-workers)
+  VERSION: version of docker images to use, default latest
+  PORT: port to run web, default 8080
+  WORKERS: this is the number of workers to create in deploy-workers action
+  PREFIX: this is the prefix used by all Dick The Deployer components
+  DICK_WEB_ADDRESS: this is the Dick The Deployer Web address used by workers to register in
+</code></pre>
+
+<blockquote>
+<p>Note: all variables are optional.</p>
+</blockquote>
+
+<p>There are also several advanced options not included in full usage, please refer to the script content for details.</p>
+
+<h2 id="options:0814af543608f4fd171b2e9cf43d9917">Options</h2>
+
+<p>To customize the deployment, you can specify the following environment variables.</p>
+
+<h3 id="action:0814af543608f4fd171b2e9cf43d9917">Action</h3>
+
+<p>This controls the action for the script. Available options are:</p>
+
+<ul>
+<li><code>deploy-web</code>: Deploy new Dick the Deployer instance</li>
+<li><code>upgrade-web</code>: Upgrade Dick the Deployer instance.</li>
+<li><code>remove-web</code>: Remove Dick the Deployer instance. (Some additional steps may be required, as printed by script)</li>
+<li><code>deploy-workers</code>: Deploy two Workers and link them to Web. <code>DICK_WEB_ADDRESS</code> is required.</li>
+<li><code>upgrade-workers</code>: Upgrade each available Worker instance.</li>
+<li><code>remove-workers</code>: Remove each Worker instance.</li>
+</ul>
+
+<h3 id="version:0814af543608f4fd171b2e9cf43d9917">Version</h3>
+
+<p>Version of Dick the Deployer container pulled from registry.</p>
+
+<h3 id="port:0814af543608f4fd171b2e9cf43d9917">PORT</h3>
+
+<p>Port used by Dick the Deployer - Web module.</p>
+
+                    </div>
+                </section>
+                
+                <h1 class="content-subhead">22 Nov 2015, 20:11</h1>
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="https://dick-the-deployer.github.io/docs/integrations/generic/" class="post-title">Generic hook</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        <p>To notify Dick the Deployer about the changes in repository you can use generic hook.
+To do so please send <code>POST</code> request to <code>api/hooks</code> endpoint, with <code>json</code> body:</p>
+
+<pre><code class="language-json">{
+    host: 'my-gitlab.example.com'
+    path: 'open-source/wizzard'
+    ref: 'master'
+    sha: '44a5d78fd58cb9d5de4'
+    lastMessage: 'Wand support implemented'
+}
+</code></pre>
+
+<p>You can automate this using post-commit hook feature. Docs are avaliable <a href="https://git-scm.com/book/uz/v2/Customizing-Git-Git-Hooks">here</a>.</p>
+
+                    </div>
+                </section>
+                
+                <h1 class="content-subhead">22 Nov 2015, 20:11</h1>
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="https://dick-the-deployer.github.io/docs/integrations/gitlab/" class="post-title">Gitlab integration</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        <p>To enable Gitlab integration open your project settings in Gitlab, and then go to <code>Web Hooks</code> page.</p>
+
+<p>As URL use your Dick the Deployer instance address with <code>/api/hooks/gitlab</code> path. Make sure that Trigger Push Events is
+checked and save the changes.</p>
+
+<p><img src="/images/gitlab.png" alt="Gitlab" />
+</p>
+
+                    </div>
+                </section>
+                
+                <h1 class="content-subhead">22 Nov 2015, 20:11</h1>
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="https://dick-the-deployer.github.io/docs/integrations/gitlab-ci/" class="post-title">GitlabCI integration</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        <p>To enable GitlabCI integration open your project settings in Gitlab, and then go to <code>CI Web Hooks</code> page.</p>
+
+<p>As URL use your Dick the Deployer instance address with <code>/api/hooks/gitlab-ci</code> path.</p>
+
+<p><img src="/images/gitlab-ci.png" alt="Gitlab" />
+</p>
+
+                    </div>
+                </section>
+                
+                <h1 class="content-subhead">22 Nov 2015, 20:11</h1>
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="https://dick-the-deployer.github.io/docs/integrations/" class="post-title">Integrations</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        <p><em>Dick the Deployer doesn&rsquo;t pool the repositories for changes.</em>
+Instead the code repository should send notification using one of available hooks.</p>
+
+<p>Dick the Deployer provides generic endpoint as well as several basic integrations with popular software.</p>
+
+<ul>
+<li><a href="/docs/integrations/generic">Generic endpoint</a></li>
+<li><a href="/docs/integrations/gitlab">Gitlab</a></li>
+<li><a href="/docs/integrations/gitlab-ci">Gitlab CI</a></li>
+</ul>
+
+                    </div>
+                </section>
+                
+                <h1 class="content-subhead">22 Nov 2015, 20:11</h1>
+                <section class="post">
+                    <header class="post-header">
+
+                        <a href="https://dick-the-deployer.github.io/docs/environment/" class="post-title">Parametrization</a>
+
+                        <p class="post-meta">
+                            
+                            
+                        </p>
+                    </header>
+
+                    <div class="post-description">
+                        
+
+<p>Dick the Deployer enables parametrization of build scripts using environment variables.
+Values that should remain secret can be provided using Dick Web by selecting <code>secure</code> option.
+Those variables will not be visible in build output.</p>
+
+<h2 id="providing-environment-variables:1c6c8021bf90a0f894bf2ef30de55548">Providing Environment Variables</h2>
+
+<p>There are three ways of providing environment variables:</p>
+
+<ul>
+<li>manually when starting pipeline with options,</li>
+<li>by <code>variables</code> section in <code>.deployer.yml</code> configuration file,</li>
+<li>and finally by project options in Dick Web.</li>
+</ul>
+
+<h2 id="environment-variables-order:1c6c8021bf90a0f894bf2ef30de55548">Environment Variables Order</h2>
+
+<p>There are several ways of providing environment variables to the job. Variables can be injected
+by setting them to configuration on Dick the Deployer Web, can be provided via <code>yml</code> file and
+by setting them when triggering the job manually with options.</p>
+
+<p>Each conflict in variable names is resolved with priorities in descending order as follows:</p>
+
+<ul>
+<li>most important are variables set manually (or via build hook),</li>
+<li>then variables defined in <code>yml</code> file,</li>
+<li>finally variables configured in project on Dick Web have lowest priority.</li>
+</ul>
+
+                    </div>
+                </section>
+                
+            </div>
+            
+
+            <div class="footer">
+    <div class="pure-menu pure-menu-horizontal pure-menu-open">
+        <ul>
+            <li>Powered by <a class="hugo" href="http://gohugo.io/" target="_blank">hugo</a></li>
+        </ul>
+    </div>
+</div>
+<script src="https://dick-the-deployer.github.io/js/all.min.js"></script>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>
